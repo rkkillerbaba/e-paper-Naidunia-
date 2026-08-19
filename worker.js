@@ -22,7 +22,7 @@ const CITY_MAP = {
   '71': 'bilaspur'
 }
 
-const MONTHS_LOWER = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 async function handleRequest(request) {
   const corsHeaders = {
@@ -37,8 +37,6 @@ async function handleRequest(request) {
   }
 
   const url = new URL(request.url)
-
-  // 1. Date & Edition Params
   let dateParam = url.searchParams.get('date') || '2026-08-19'
   const eid = url.searchParams.get('eid') || '62'
   const cityName = CITY_MAP[eid] || 'narsingpur'
@@ -46,90 +44,111 @@ async function handleRequest(request) {
   // Date Parsing
   const [year, monthNum, dayNum] = dateParam.split('-')
   const day = String(parseInt(dayNum, 10)).padStart(2, '0')
-  const monthLower = MONTHS_LOWER[parseInt(monthNum, 10) - 1] || 'aug'
+  const monthIdx = parseInt(monthNum, 10) - 1
+  const monthLower = MONTHS[monthIdx] || 'aug'
+  const monthCap = monthLower.charAt(0).toUpperCase() + monthLower.slice(1)
 
-  // 2. Exact Lowercase Target URL
-  const targetPageUrl = `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`
+  // List of possible URL slugs on Naidunia Next.js routing
+  const candidateUrls = [
+    `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
+    `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`,
+    `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
+    `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`
+  ]
 
-  try {
-    const pageResponse = await fetch(targetPageUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
-        'Referer': 'https://epaper.naidunia.com/'
-      }
-    })
+  let pageData = null
+  let lastError = null
 
-    if (!pageResponse.ok) {
-      throw new Error(`Naidunia page error: HTTP ${pageResponse.status} for URL: ${targetPageUrl}`)
-    }
+  const browserHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1'
+  }
 
-    const html = await pageResponse.text()
-
-    // 3. Flexible NEXT_DATA Regex Match
-    const nextDataMatch = html.match(/<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i)
-    if (!nextDataMatch || !nextDataMatch[1]) {
-      throw new Error('__NEXT_DATA__ tag HTML me nahi mila.')
-    }
-
-    const nextData = JSON.parse(nextDataMatch[1])
-    const pageProps = nextData?.props?.pageProps || nextData?.pageProps || {}
-    const rawPages = pageProps?.data || []
-
-    if (!rawPages || rawPages.length === 0) {
-      return new Response(JSON.stringify({
-        success: false,
-        message: `${day}-${monthLower}-${year} ka e-paper uplabdh nahi hai.`,
-        pages: []
-      }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  // Auto-try candidate URLs until one succeeds
+  for (const targetUrl of candidateUrls) {
+    try {
+      const response = await fetch(targetUrl, {
+        headers: browserHeaders,
+        redirect: 'follow',
+        cf: { cacheTtl: 3600, cacheEverything: true }
       })
-    }
 
-    // 4. Sanitize Clean Data Structure
-    const sanitizedPages = rawPages.map(page => ({
-      pageno: page.pageno,
-      page_image: page.page_image,
-      page_largeimage: page.page_largeimage,
-      page_pdf: page.page_pdf,
-      formattedCity: page.formattedCity || cityName,
-      formattedDate: page.formattedDate || `${day} ${monthLower.toUpperCase()} ${year}`
-    }))
+      if (response.ok) {
+        const html = await response.text()
+        
+        // Robust Substring JSON Extractor
+        const scriptMarker = 'id="__NEXT_DATA__"'
+        const markerIdx = html.indexOf(scriptMarker)
 
-    const finalResponse = {
-      success: true,
-      meta: {
-        eid: eid,
-        city: sanitizedPages[0]?.formattedCity || cityName,
-        date: dateParam,
-        formattedDate: sanitizedPages[0]?.formattedDate,
-        total_pages: sanitizedPages.length
-      },
-      pages: sanitizedPages,
-      pageProps: {
-        data: sanitizedPages
+        if (markerIdx !== -1) {
+          const openTagEnd = html.indexOf('>', markerIdx)
+          const closeTagStart = html.indexOf('</script>', openTagEnd)
+
+          if (openTagEnd !== -1 && closeTagStart !== -1) {
+            const jsonText = html.substring(openTagEnd + 1, closeTagStart).trim()
+            const parsed = JSON.parse(jsonText)
+            const pages = parsed?.props?.pageProps?.data || parsed?.pageProps?.data || []
+
+            if (pages.length > 0) {
+              pageData = pages
+              break
+            }
+          }
+        }
       }
+    } catch (e) {
+      lastError = e.message
     }
+  }
 
-    return new Response(JSON.stringify(finalResponse), {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=1800'
-      }
-    })
-
-  } catch (err) {
+  if (!pageData || pageData.length === 0) {
     return new Response(JSON.stringify({
       success: false,
-      error: err.message,
-      targetUrl: targetPageUrl
+      message: `${day}-${monthCap}-${year} (${cityName}) ka e-paper load nahi hua.`,
+      error: lastError || 'Page data empty or not found on Naidunia'
     }), {
-      status: 500,
+      status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
+
+  // Sanitize Pages
+  const sanitizedPages = pageData.map(page => ({
+    pageno: page.pageno,
+    page_image: page.page_image,
+    page_largeimage: page.page_largeimage,
+    page_pdf: page.page_pdf,
+    formattedCity: page.formattedCity || cityName,
+    formattedDate: page.formattedDate || `${day} ${monthCap} ${year}`
+  }))
+
+  const finalResponse = {
+    success: true,
+    meta: {
+      eid: eid,
+      city: sanitizedPages[0]?.formattedCity || cityName,
+      date: dateParam,
+      formattedDate: sanitizedPages[0]?.formattedDate,
+      total_pages: sanitizedPages.length
+    },
+    pages: sanitizedPages,
+    pageProps: {
+      data: sanitizedPages
+    }
+  }
+
+  return new Response(JSON.stringify(finalResponse), {
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=1800'
+    }
+  })
 }
