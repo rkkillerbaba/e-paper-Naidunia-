@@ -1,30 +1,12 @@
 // ==========================================================
-// 1. CONFIGURATION & FALLBACK DATA
+// 1. CONFIGURATION & STATE
 // ==========================================================
-// Yahan apne deploy kiye huye Cloudflare Worker ka URL paste karein:
 const WORKER_URL = 'https://e-paper-naidunia.rkkillerbaba.workers.dev';
 
-const fallbackData = [
-  { "pageno": 1, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg1-0233519830.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.pdf" },
-  { "pageno": 2, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg2-0233522390.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.pdf" },
-  { "pageno": 3, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg3-0233528550.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.pdf" },
-  { "pageno": 4, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg4-0233532327.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.pdf" },
-  { "pageno": 5, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg5-0233537257.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.pdf" },
-  { "pageno": 6, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg6-0233540033.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.pdf" },
-  { "pageno": 7, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg7-0233546897.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.pdf" },
-  { "pageno": 8, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg8-0233550953.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.pdf" },
-  { "pageno": 9, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg9-0233554603.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.pdf" },
-  { "pageno": 10, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg10-0233556710.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.pdf" },
-  { "pageno": 11, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg11-0221252930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.pdf" },
-  { "pageno": 12, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg12-0222438930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.pdf" },
-  { "pageno": 13, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg13-0221526653.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.pdf" },
-  { "pageno": 14, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg14-0221018583.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.pdf" }
-];
-
-let currentPagesList = [...fallbackData];
+let currentPagesList = [];
 let activePageIndex = 0;
 
-// Viewer Pan & Zoom State
+// Viewer Pan & Zoom State Engine
 let zoomScale = 1;
 let panX = 0;
 let panY = 0;
@@ -58,7 +40,7 @@ themeToggle.addEventListener('click', () => {
 });
 
 // ==========================================================
-// 3. DATE & EDITION CONTROLS
+// 3. DATE & EDITION CONTROLS (Next / Prev & Switcher)
 // ==========================================================
 const paperDateInput = document.getElementById('paperDate');
 
@@ -78,9 +60,10 @@ function setTodayDate() {
 }
 
 function handleDateOrEditionChange() {
-    const dateVal = paperDateInput.value;
-    const eidVal = document.getElementById('editionSelect').value;
+    const dateVal = paperDateInput.value || '2026-08-19';
+    const eidVal = document.getElementById('editionSelect').value || '62';
     
+    // Format Display Date (e.g. Wednesday, 19 August 2026)
     const dateObj = new Date(dateVal);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('editionDateFormatted').innerText = dateObj.toLocaleDateString('en-US', options);
@@ -92,7 +75,7 @@ paperDateInput.addEventListener('change', handleDateOrEditionChange);
 document.getElementById('editionSelect').addEventListener('change', handleDateOrEditionChange);
 
 // ==========================================================
-// 4. DATA LOADER & RENDER ENGINE
+// 4. DATA LOADER & RENDER ENGINE (Worker Connection)
 // ==========================================================
 async function loadEpaperData(dateStr, eid) {
     renderSkeletons();
@@ -101,24 +84,52 @@ async function loadEpaperData(dateStr, eid) {
 
     try {
         const response = await fetch(`${WORKER_URL}?date=${dateStr}&eid=${eid}`);
+        if (!response.ok) {
+            throw new Error(`Server returned status: ${response.status}`);
+        }
+        
         const data = await response.json();
 
-        if (data.pages && data.pages.length > 0) {
+        if (data.success && data.pages && data.pages.length > 0) {
             currentPagesList = data.pages;
-            document.getElementById('editionHeadline').innerText = `${data.meta.city} Edition`;
+            const cityName = data.meta?.city || document.getElementById('editionSelect').options[document.getElementById('editionSelect').selectedIndex].text.split(' ')[0];
+            document.getElementById('editionHeadline').innerText = `${cityName} Edition`;
+            if (data.meta?.formattedDate) {
+                document.getElementById('editionDateFormatted').innerText = data.meta.formattedDate;
+            }
             renderPagesGrid(currentPagesList);
-        } else if (data.pageProps && data.pageProps.data) {
+        } else if (data.pageProps && data.pageProps.data && data.pageProps.data.length > 0) {
             currentPagesList = data.pageProps.data;
-            document.getElementById('editionHeadline').innerText = `${data.pageProps.data[0].formattedCity} Edition`;
+            document.getElementById('editionHeadline').innerText = `${data.pageProps.data[0].formattedCity || 'City'} Edition`;
             renderPagesGrid(currentPagesList);
         } else {
-            throw new Error("No data returned");
+            showNoDataState(dateStr);
         }
     } catch (err) {
-        console.log("Using Fallback Local Dataset.");
-        currentPagesList = fallbackData;
-        renderPagesGrid(fallbackData);
+        console.error("Worker fetch error:", err);
+        showNoDataState(dateStr);
     }
+}
+
+function showNoDataState(dateStr) {
+    const loader = document.getElementById('loader');
+    const grid = document.getElementById('pagesGrid');
+    loader.classList.add('hidden');
+    grid.classList.remove('hidden');
+    
+    grid.innerHTML = `
+        <div class="col-span-full py-16 text-center glass-card rounded-3xl border border-slate-200 dark:border-white/10 p-8 shadow-sm">
+            <div class="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">E-Paper Uplabdh Nahi Hai</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                Tareekh (${dateStr}) ka e-paper abhi archive me upload nahi hua hai. Kripya dusri date select karein.
+            </p>
+        </div>
+    `;
+    document.getElementById('pageCountBadge').innerText = `• 0 Pages`;
+    document.getElementById('filmstripContainer').innerHTML = '';
 }
 
 function renderSkeletons() {
@@ -169,7 +180,7 @@ function renderPagesGrid(pages) {
                         <button onclick="openCinemaViewer(${index})" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-night-surface dark:hover:bg-brand-500 text-slate-600 dark:text-slate-300 flex items-center justify-center transition">
                             <i class="fa-solid fa-eye text-xs"></i>
                         </button>
-                        <a href="${page.page_pdf}" target="_blank" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-indigo-600 hover:text-white dark:bg-night-surface dark:hover:bg-indigo-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition">
+                        <a href="${page.page_pdf}" target="_blank" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-indigo-600 hover:text-white dark:bg-night-surface dark:hover:bg-indigo-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" title="Download PDF">
                             <i class="fa-solid fa-file-pdf text-xs"></i>
                         </a>
                     </div>
@@ -198,8 +209,9 @@ const zoomPercentBadge = document.getElementById('zoomPercentBadge');
 function openCinemaViewer(index) {
     activePageIndex = index;
     const page = currentPagesList[activePageIndex];
+    const cityName = page.formattedCity || document.getElementById('editionHeadline').innerText.replace(' Edition', '');
     
-    document.getElementById('modalPageTitle').innerText = `Narsingpur Edition - Page ${page.pageno}`;
+    document.getElementById('modalPageTitle').innerText = `${cityName} Edition - Page ${page.pageno}`;
     document.getElementById('modalPageNumberBadge').innerText = `P.${page.pageno < 10 ? '0'+page.pageno : page.pageno}`;
     document.getElementById('modalDownloadPdfBtn').href = page.page_pdf;
 
@@ -265,7 +277,7 @@ zoomRangeSlider.addEventListener('input', (e) => {
     setExactZoom(parseFloat(e.target.value));
 });
 
-// Mouse Drag / Panning
+// Mouse Drag / Pan Events
 viewportStage.addEventListener('mousedown', (e) => {
     if (e.target.closest('#zoomContainer') || e.target === viewportStage) {
         isDragging = true;
@@ -290,7 +302,7 @@ viewportStage.addEventListener('wheel', (e) => {
     setExactZoom(zoomScale + delta);
 }, { passive: false });
 
-// Mobile Touch Drag & Pinch Zoom
+// Mobile Touch Drag & Pinch Zoom Events
 let touchStartDist = 0;
 let initialZoom = 1;
 
@@ -370,5 +382,5 @@ function downloadAllPages() {
     alert("Aap kisi bhi page ke PDF icon par click karke direct page download kar sakte hain.");
 }
 
-// Initial Boot
-renderPagesGrid(fallbackData);
+// Initial Boot (Fetches the selected date dynamically via Worker)
+handleDateOrEditionChange();
