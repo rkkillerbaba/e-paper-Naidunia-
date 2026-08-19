@@ -24,6 +24,7 @@ const backup19Aug = [
 let currentPagesList = [];
 let activePageIndex = 0;
 
+// Viewer Pan & Zoom State Engine
 let zoomScale = 1;
 let panX = 0;
 let panY = 0;
@@ -31,14 +32,16 @@ let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 
-// Theme Engine
+// ==========================================================
+// 2. THEME ENGINE (Dark / Light Mode)
+// ==========================================================
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
 const html = document.documentElement;
 
 function initTheme() {
-    const saved = localStorage.getItem('pulse_theme') || 'dark';
-    if (saved === 'light') {
+    const savedTheme = localStorage.getItem('pulse_theme') || 'dark';
+    if (savedTheme === 'light') {
         html.classList.remove('dark');
         themeIcon.className = 'fa-solid fa-sun text-amber-500';
     } else {
@@ -54,7 +57,9 @@ themeToggle.addEventListener('click', () => {
     themeIcon.className = isDark ? 'fa-solid fa-moon text-amber-400' : 'fa-solid fa-sun text-amber-500';
 });
 
-// Date & Edition Controls
+// ==========================================================
+// 3. DATE & EDITION CONTROLS
+// ==========================================================
 const paperDateInput = document.getElementById('paperDate');
 
 function changeDateByDays(days) {
@@ -86,7 +91,9 @@ function handleDateOrEditionChange() {
 paperDateInput.addEventListener('change', handleDateOrEditionChange);
 document.getElementById('editionSelect').addEventListener('change', handleDateOrEditionChange);
 
-// Main Data Fetcher
+// ==========================================================
+// 4. MAIN DATA FETCHER (WORKER CONNECTED)
+// ==========================================================
 async function loadEpaperData(dateStr, eid) {
     renderSkeletons();
     document.getElementById('loader').classList.remove('hidden');
@@ -104,11 +111,10 @@ async function loadEpaperData(dateStr, eid) {
             }
             renderPagesGrid(currentPagesList);
         } else if (dateStr === '2026-08-19') {
-            // Backup render for 19 Aug
             currentPagesList = backup19Aug;
             renderPagesGrid(backup19Aug);
         } else {
-            showNoDataState(dateStr, data.message || data.error);
+            showNoDataState(dateStr);
         }
     } catch (err) {
         console.error("Worker fetch error:", err);
@@ -116,12 +122,12 @@ async function loadEpaperData(dateStr, eid) {
             currentPagesList = backup19Aug;
             renderPagesGrid(backup19Aug);
         } else {
-            showNoDataState(dateStr, "Worker connection error. Please check worker URL.");
+            showNoDataState(dateStr);
         }
     }
 }
 
-function showNoDataState(dateStr, details) {
+function showNoDataState(dateStr) {
     const loader = document.getElementById('loader');
     const grid = document.getElementById('pagesGrid');
     loader.classList.add('hidden');
@@ -134,7 +140,7 @@ function showNoDataState(dateStr, details) {
             </div>
             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">E-Paper Uplabdh Nahi Hai</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
-                Tareekh (${dateStr}) ka paper archive me nahi mila.
+                Tareekh (${dateStr}) ka paper archive me nahi mila. Kripya doosri date select karein.
             </p>
             <button onclick="changeDateByDays(-1)" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow">
                 <i class="fa-solid fa-chevron-left mr-1"></i> Pichle Din Ka Dekhein
@@ -189,7 +195,7 @@ function renderPagesGrid(pages) {
                     </div>
                     
                     <div class="flex items-center gap-1.5">
-                        <button onclick="openCinemaViewer(${index})" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-night-surface dark:hover:bg-brand-500 text-slate-600 dark:text-slate-300 flex items-center justify-center transition">
+                        <button onclick="openCinemaViewer(${index})" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-night-surface dark:hover:bg-brand-500 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" title="Read Page">
                             <i class="fa-solid fa-eye text-xs"></i>
                         </button>
                         <a href="${page.page_pdf}" target="_blank" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-indigo-600 hover:text-white dark:bg-night-surface dark:hover:bg-indigo-600 text-slate-600 dark:text-slate-300 flex items-center justify-center transition" title="Download PDF">
@@ -208,7 +214,9 @@ function renderPagesGrid(pages) {
     document.getElementById('pageCountBadge').innerText = `• ${pages.length} Pages Ready`;
 }
 
-// Viewer Controls
+// ==========================================================
+// 5. CINEMA VIEWER (MANUAL ZOOM & PAN ENGINE)
+// ==========================================================
 const cinemaModal = document.getElementById('cinemaModal');
 const cinemaImg = document.getElementById('cinemaImg');
 const zoomContainer = document.getElementById('zoomContainer');
@@ -327,7 +335,9 @@ viewportStage.addEventListener('touchend', () => {
     touchStartDist = 0;
 });
 
-// Filmstrip
+// ==========================================================
+// 6. FILMSTRIP & KEYBOARD SHORTCUTS
+// ==========================================================
 function renderFilmstrip(pages) {
     const container = document.getElementById('filmstripContainer');
     container.innerHTML = '';
@@ -353,8 +363,11 @@ function highlightFilmstrip(index) {
 }
 
 window.addEventListener('keydown', (e) => {
-    if (cinemaModal.classList.contains('hidden')) return;
-    if (e.key === 'Escape') closeCinemaModal();
+    if (cinemaModal.classList.contains('hidden') && downloadHubModal.classList.contains('hidden')) return;
+    if (e.key === 'Escape') {
+        closeCinemaModal();
+        closeDownloadHub();
+    }
     if (e.key === 'ArrowRight') navigatePage(1);
     if (e.key === 'ArrowLeft') navigatePage(-1);
     if (e.key === '+' || e.key === '=') zoomStep(0.25);
@@ -362,9 +375,60 @@ window.addEventListener('keydown', (e) => {
     if (e.key === '0') resetZoom();
 });
 
-function downloadAllPages() {
-    alert("Individual PDF download karne ke liye kisi bhi page ke PDF icon par click karein.");
+// ==========================================================
+// 7. CUSTOM DOWNLOAD HUB MODAL (Replaces Browser Alert)
+// ==========================================================
+const downloadHubModal = document.getElementById('downloadHubModal');
+const downloadModalCard = document.getElementById('downloadModalCard');
+
+function openDownloadHub() {
+    const listContainer = document.getElementById('downloadPagesList');
+    listContainer.innerHTML = '';
+
+    if (!currentPagesList || currentPagesList.length === 0) {
+        listContainer.innerHTML = `<p class="col-span-full text-center text-xs text-slate-500 py-4">कोई पेज उपलब्ध नहीं है।</p>`;
+    } else {
+        currentPagesList.forEach(page => {
+            const btn = document.createElement('a');
+            btn.href = page.page_pdf;
+            btn.target = '_blank';
+            btn.className = 'flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-brand-500 hover:text-white dark:bg-night-surface dark:hover:bg-brand-500 text-slate-700 dark:text-slate-200 text-xs font-bold transition group shadow-sm';
+            btn.innerHTML = `
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-pdf text-brand-500 group-hover:text-white transition"></i>
+                    Page ${page.pageno}
+                </span>
+                <i class="fa-solid fa-arrow-down text-[10px] opacity-60 group-hover:opacity-100"></i>
+            `;
+            listContainer.appendChild(btn);
+        });
+    }
+
+    downloadHubModal.classList.remove('hidden');
+    setTimeout(() => {
+        downloadHubModal.classList.remove('opacity-0');
+        downloadModalCard.classList.remove('scale-95');
+        downloadModalCard.classList.add('scale-100');
+    }, 10);
 }
 
-// Initial Boot
+function closeDownloadHub() {
+    downloadModalCard.classList.remove('scale-100');
+    downloadModalCard.classList.add('scale-95');
+    downloadHubModal.classList.add('opacity-0');
+    setTimeout(() => {
+        downloadHubModal.classList.add('hidden');
+    }, 200);
+}
+
+// Background click closes modal
+downloadHubModal.addEventListener('click', (e) => {
+    if (e.target === downloadHubModal) {
+        closeDownloadHub();
+    }
+});
+
+// ==========================================================
+// 8. INITIAL BOOT
+// ==========================================================
 handleDateOrEditionChange();
