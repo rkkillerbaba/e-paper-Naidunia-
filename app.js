@@ -1,12 +1,29 @@
 // ==========================================================
-// 1. CONFIGURATION & STATE
+// 1. CONFIGURATION & BACKUP DATA
 // ==========================================================
 const WORKER_URL = 'https://e-paper-naidunia.rkkillerbaba.workers.dev';
+
+// Default backup dataset
+const backup19Aug = [
+  { "pageno": 1, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg1-0233519830.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.pdf" },
+  { "pageno": 2, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg2-0233522390.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.pdf" },
+  { "pageno": 3, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg3-0233528550.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.pdf" },
+  { "pageno": 4, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg4-0233532327.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.pdf" },
+  { "pageno": 5, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg5-0233537257.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.pdf" },
+  { "pageno": 6, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg6-0233540033.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.pdf" },
+  { "pageno": 7, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg7-0233546897.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.pdf" },
+  { "pageno": 8, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg8-0233550953.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.pdf" },
+  { "pageno": 9, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg9-0233554603.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.pdf" },
+  { "pageno": 10, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg10-0233556710.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.pdf" },
+  { "pageno": 11, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg11-0221252930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.pdf" },
+  { "pageno": 12, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg12-0222438930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.pdf" },
+  { "pageno": 13, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg13-0221526653.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.pdf" },
+  { "pageno": 14, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg14-0221018583.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.pdf" }
+];
 
 let currentPagesList = [];
 let activePageIndex = 0;
 
-// Viewer Pan & Zoom State Engine
 let zoomScale = 1;
 let panX = 0;
 let panY = 0;
@@ -14,16 +31,14 @@ let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 
-// ==========================================================
-// 2. THEME ENGINE (Dark / Light Mode)
-// ==========================================================
+// Theme Engine
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
 const html = document.documentElement;
 
 function initTheme() {
-    const savedTheme = localStorage.getItem('pulse_theme') || 'dark';
-    if (savedTheme === 'light') {
+    const saved = localStorage.getItem('pulse_theme') || 'dark';
+    if (saved === 'light') {
         html.classList.remove('dark');
         themeIcon.className = 'fa-solid fa-sun text-amber-500';
     } else {
@@ -39,9 +54,7 @@ themeToggle.addEventListener('click', () => {
     themeIcon.className = isDark ? 'fa-solid fa-moon text-amber-400' : 'fa-solid fa-sun text-amber-500';
 });
 
-// ==========================================================
-// 3. DATE & EDITION CONTROLS (Next / Prev & Switcher)
-// ==========================================================
+// Date & Edition Controls
 const paperDateInput = document.getElementById('paperDate');
 
 function changeDateByDays(days) {
@@ -63,7 +76,6 @@ function handleDateOrEditionChange() {
     const dateVal = paperDateInput.value || '2026-08-19';
     const eidVal = document.getElementById('editionSelect').value || '62';
     
-    // Format Display Date (e.g. Wednesday, 19 August 2026)
     const dateObj = new Date(dateVal);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('editionDateFormatted').innerText = dateObj.toLocaleDateString('en-US', options);
@@ -74,9 +86,7 @@ function handleDateOrEditionChange() {
 paperDateInput.addEventListener('change', handleDateOrEditionChange);
 document.getElementById('editionSelect').addEventListener('change', handleDateOrEditionChange);
 
-// ==========================================================
-// 4. DATA LOADER & RENDER ENGINE (Worker Connection)
-// ==========================================================
+// Main Data Fetcher
 async function loadEpaperData(dateStr, eid) {
     renderSkeletons();
     document.getElementById('loader').classList.remove('hidden');
@@ -84,34 +94,34 @@ async function loadEpaperData(dateStr, eid) {
 
     try {
         const response = await fetch(`${WORKER_URL}?date=${dateStr}&eid=${eid}`);
-        if (!response.ok) {
-            throw new Error(`Server returned status: ${response.status}`);
-        }
-        
         const data = await response.json();
 
         if (data.success && data.pages && data.pages.length > 0) {
             currentPagesList = data.pages;
-            const cityName = data.meta?.city || document.getElementById('editionSelect').options[document.getElementById('editionSelect').selectedIndex].text.split(' ')[0];
-            document.getElementById('editionHeadline').innerText = `${cityName} Edition`;
+            document.getElementById('editionHeadline').innerText = `${data.meta.city} Edition`;
             if (data.meta?.formattedDate) {
                 document.getElementById('editionDateFormatted').innerText = data.meta.formattedDate;
             }
             renderPagesGrid(currentPagesList);
-        } else if (data.pageProps && data.pageProps.data && data.pageProps.data.length > 0) {
-            currentPagesList = data.pageProps.data;
-            document.getElementById('editionHeadline').innerText = `${data.pageProps.data[0].formattedCity || 'City'} Edition`;
-            renderPagesGrid(currentPagesList);
+        } else if (dateStr === '2026-08-19') {
+            // Backup render for 19 Aug
+            currentPagesList = backup19Aug;
+            renderPagesGrid(backup19Aug);
         } else {
-            showNoDataState(dateStr);
+            showNoDataState(dateStr, data.message || data.error);
         }
     } catch (err) {
         console.error("Worker fetch error:", err);
-        showNoDataState(dateStr);
+        if (dateStr === '2026-08-19') {
+            currentPagesList = backup19Aug;
+            renderPagesGrid(backup19Aug);
+        } else {
+            showNoDataState(dateStr, "Worker connection error. Please check worker URL.");
+        }
     }
 }
 
-function showNoDataState(dateStr) {
+function showNoDataState(dateStr, details) {
     const loader = document.getElementById('loader');
     const grid = document.getElementById('pagesGrid');
     loader.classList.add('hidden');
@@ -123,9 +133,12 @@ function showNoDataState(dateStr) {
                 <i class="fa-solid fa-calendar-xmark"></i>
             </div>
             <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">E-Paper Uplabdh Nahi Hai</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                Tareekh (${dateStr}) ka e-paper abhi archive me upload nahi hua hai. Kripya dusri date select karein.
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
+                Tareekh (${dateStr}) ka paper archive me nahi mila.
             </p>
+            <button onclick="changeDateByDays(-1)" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow">
+                <i class="fa-solid fa-chevron-left mr-1"></i> Pichle Din Ka Dekhein
+            </button>
         </div>
     `;
     document.getElementById('pageCountBadge').innerText = `• 0 Pages`;
@@ -157,7 +170,6 @@ function renderPagesGrid(pages) {
         
         card.innerHTML = `
             <div class="card-3d glass-card rounded-3xl p-3.5 border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-col justify-between">
-                
                 <div class="relative w-full aspect-[1/1.4] rounded-2xl overflow-hidden cursor-pointer bg-slate-100 dark:bg-slate-900" onclick="openCinemaViewer(${index})">
                     <img src="${page.page_image}" alt="Page ${page.pageno}" loading="lazy" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
                     
@@ -196,9 +208,7 @@ function renderPagesGrid(pages) {
     document.getElementById('pageCountBadge').innerText = `• ${pages.length} Pages Ready`;
 }
 
-// ==========================================================
-// 5. CINEMA VIEWER (MANUAL ZOOM & PAN ENGINE)
-// ==========================================================
+// Viewer Controls
 const cinemaModal = document.getElementById('cinemaModal');
 const cinemaImg = document.getElementById('cinemaImg');
 const zoomContainer = document.getElementById('zoomContainer');
@@ -255,29 +265,13 @@ function setExactZoom(val) {
     updateTransform();
 }
 
-function zoomStep(delta) {
-    setExactZoom(zoomScale + delta);
-}
+function zoomStep(delta) { setExactZoom(zoomScale + delta); }
+function fitWidthZoom() { zoomScale = 1.8; panX = 0; panY = 0; updateTransform(); }
+function resetZoom() { zoomScale = 1; panX = 0; panY = 0; updateTransform(); }
 
-function fitWidthZoom() {
-    zoomScale = 1.8;
-    panX = 0;
-    panY = 0;
-    updateTransform();
-}
+zoomRangeSlider.addEventListener('input', (e) => setExactZoom(parseFloat(e.target.value)));
 
-function resetZoom() {
-    zoomScale = 1;
-    panX = 0;
-    panY = 0;
-    updateTransform();
-}
-
-zoomRangeSlider.addEventListener('input', (e) => {
-    setExactZoom(parseFloat(e.target.value));
-});
-
-// Mouse Drag / Pan Events
+// Mouse Drag/Pan
 viewportStage.addEventListener('mousedown', (e) => {
     if (e.target.closest('#zoomContainer') || e.target === viewportStage) {
         isDragging = true;
@@ -295,14 +289,7 @@ window.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => isDragging = false);
 
-// Mouse Wheel Zoom
-viewportStage.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const delta = e.deltaY < 0 ? 0.15 : -0.15;
-    setExactZoom(zoomScale + delta);
-}, { passive: false });
-
-// Mobile Touch Drag & Pinch Zoom Events
+// Touch Support for Mobile
 let touchStartDist = 0;
 let initialZoom = 1;
 
@@ -331,8 +318,7 @@ viewportStage.addEventListener('touchmove', (e) => {
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY
         );
-        const scaleDiff = currentDist / touchStartDist;
-        setExactZoom(initialZoom * scaleDiff);
+        setExactZoom(initialZoom * (currentDist / touchStartDist));
     }
 });
 
@@ -341,9 +327,7 @@ viewportStage.addEventListener('touchend', () => {
     touchStartDist = 0;
 });
 
-// ==========================================================
-// 6. FILMSTRIP & KEYBOARD SHORTCUTS
-// ==========================================================
+// Filmstrip
 function renderFilmstrip(pages) {
     const container = document.getElementById('filmstripContainer');
     container.innerHTML = '';
@@ -379,8 +363,8 @@ window.addEventListener('keydown', (e) => {
 });
 
 function downloadAllPages() {
-    alert("Aap kisi bhi page ke PDF icon par click karke direct page download kar sakte hain.");
+    alert("Individual PDF download karne ke liye kisi bhi page ke PDF icon par click karein.");
 }
 
-// Initial Boot (Fetches the selected date dynamically via Worker)
+// Initial Boot
 handleDateOrEditionChange();
