@@ -2,7 +2,7 @@
 // 1. CONFIGURATION & FALLBACK DATA
 // ==========================================================
 // Yahan apne deploy kiye huye Cloudflare Worker ka URL paste karein:
-const WORKER_URL = 'https://YOUR-WORKER-SUBDOMAIN.workers.dev';
+const WORKER_URL = 'https://e-paper-naidunia.rkkillerbaba.workers.dev';
 
 const fallbackData = [
   { "pageno": 1, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg1-0233519830.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.pdf" },
