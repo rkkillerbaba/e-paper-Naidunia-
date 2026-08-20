@@ -14,10 +14,9 @@ let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 
-// Helper: Get Current Date in IST (YYYY-MM-DD)
+// Get Indian Standard Time (IST) Date string (YYYY-MM-DD)
 function getTodayIST() {
     const now = new Date();
-    // India Timezone conversion
     const istOffset = 5.5 * 60 * 60 * 1000;
     const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
     return istDate.toISOString().split('T')[0];
@@ -54,7 +53,7 @@ themeToggle.addEventListener('click', () => {
 const paperDateInput = document.getElementById('paperDate');
 const editionSelect = document.getElementById('editionSelect');
 
-// Auto set TODAY's date dynamically on startup
+// Set Today's IST Date on launch
 paperDateInput.value = getTodayIST();
 
 function changeDateByDays(days) {
@@ -111,7 +110,7 @@ async function loadEpaperData(dateStr, eid) {
         }
     } catch (err) {
         console.error("Worker fetch error:", err);
-        showNoDataState(dateStr, "Worker connection error.");
+        showNoDataState(dateStr, "Worker connect nahi ho pa raha hai.");
     }
 }
 
@@ -415,7 +414,5 @@ downloadHubModal.addEventListener('click', (e) => {
     }
 });
 
-// ==========================================================
-// 7. INITIAL DYNAMIC BOOT (Auto-loads Today's Edition)
-// ==========================================================
+// Auto-boot Today's Live Paper
 handleDateOrEditionChange();
