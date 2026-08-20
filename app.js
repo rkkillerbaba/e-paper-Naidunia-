@@ -1,25 +1,7 @@
 // ==========================================================
-// 1. CONFIGURATION & BACKUP DATA
+// 1. CONFIGURATION & STATE
 // ==========================================================
 const WORKER_URL = 'https://e-paper-naidunia.rkkillerbaba.workers.dev';
-
-// Default backup dataset
-const backup19Aug = [
-  { "pageno": 1, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg1-0233519830.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg1-0233519830.pdf" },
-  { "pageno": 2, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg2-0233522390.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg2-0233522390.pdf" },
-  { "pageno": 3, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg3-0233528550.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg3-0233528550.pdf" },
-  { "pageno": 4, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg4-0233532327.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg4-0233532327.pdf" },
-  { "pageno": 5, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg5-0233537257.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg5-0233537257.pdf" },
-  { "pageno": 6, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg6-0233540033.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg6-0233540033.pdf" },
-  { "pageno": 7, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg7-0233546897.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg7-0233546897.pdf" },
-  { "pageno": 8, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg8-0233550953.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg8-0233550953.pdf" },
-  { "pageno": 9, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg9-0233554603.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg9-0233554603.pdf" },
-  { "pageno": 10, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18sha-pg10-0233556710.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18sha-pg10-0233556710.pdf" },
-  { "pageno": 11, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg11-0221252930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg11-0221252930.pdf" },
-  { "pageno": 12, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg12-0222438930.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg12-0222438930.pdf" },
-  { "pageno": 13, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg13-0221526653.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg13-0221526653.pdf" },
-  { "pageno": 14, "page_largeimage": "https://epaperapi.jagran.com/naiduniaepaper/19082026/jabalpur/m-18nar-pg14-0221018583.png", "page_image": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.png", "page_pdf": "https://epaperapi.jagran.com/naiduniaEpaper/19082026/jabalpur/18nar-pg14-0221018583.pdf" }
-];
 
 let currentPagesList = [];
 let activePageIndex = 0;
@@ -31,6 +13,15 @@ let panY = 0;
 let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
+
+// Helper: Get Current Date in IST (YYYY-MM-DD)
+function getTodayIST() {
+    const now = new Date();
+    // India Timezone conversion
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + istOffset);
+    return istDate.toISOString().split('T')[0];
+}
 
 // ==========================================================
 // 2. THEME ENGINE (Dark / Light Mode)
@@ -61,9 +52,13 @@ themeToggle.addEventListener('click', () => {
 // 3. DATE & EDITION CONTROLS
 // ==========================================================
 const paperDateInput = document.getElementById('paperDate');
+const editionSelect = document.getElementById('editionSelect');
+
+// Auto set TODAY's date dynamically on startup
+paperDateInput.value = getTodayIST();
 
 function changeDateByDays(days) {
-    const currentDate = new Date(paperDateInput.value || '2026-08-19');
+    const currentDate = new Date(paperDateInput.value || getTodayIST());
     currentDate.setDate(currentDate.getDate() + days);
     
     const newDateStr = currentDate.toISOString().split('T')[0];
@@ -72,24 +67,25 @@ function changeDateByDays(days) {
 }
 
 function setTodayDate() {
-    const today = new Date().toISOString().split('T')[0];
-    paperDateInput.value = today;
+    paperDateInput.value = getTodayIST();
     handleDateOrEditionChange();
 }
 
 function handleDateOrEditionChange() {
-    const dateVal = paperDateInput.value || '2026-08-19';
-    const eidVal = document.getElementById('editionSelect').value || '62';
+    const dateVal = paperDateInput.value || getTodayIST();
+    const eidVal = editionSelect.value || '62';
+    const selectedCityText = editionSelect.options[editionSelect.selectedIndex].text.split(' ')[0];
     
     const dateObj = new Date(dateVal);
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('editionHeadline').innerText = `${selectedCityText} Edition`;
     document.getElementById('editionDateFormatted').innerText = dateObj.toLocaleDateString('en-US', options);
     
     loadEpaperData(dateVal, eidVal);
 }
 
 paperDateInput.addEventListener('change', handleDateOrEditionChange);
-document.getElementById('editionSelect').addEventListener('change', handleDateOrEditionChange);
+editionSelect.addEventListener('change', handleDateOrEditionChange);
 
 // ==========================================================
 // 4. MAIN DATA FETCHER (WORKER CONNECTED)
@@ -110,26 +106,20 @@ async function loadEpaperData(dateStr, eid) {
                 document.getElementById('editionDateFormatted').innerText = data.meta.formattedDate;
             }
             renderPagesGrid(currentPagesList);
-        } else if (dateStr === '2026-08-19') {
-            currentPagesList = backup19Aug;
-            renderPagesGrid(backup19Aug);
         } else {
-            showNoDataState(dateStr);
+            showNoDataState(dateStr, data.message);
         }
     } catch (err) {
         console.error("Worker fetch error:", err);
-        if (dateStr === '2026-08-19') {
-            currentPagesList = backup19Aug;
-            renderPagesGrid(backup19Aug);
-        } else {
-            showNoDataState(dateStr);
-        }
+        showNoDataState(dateStr, "Worker connection error.");
     }
 }
 
-function showNoDataState(dateStr) {
+function showNoDataState(dateStr, message) {
     const loader = document.getElementById('loader');
     const grid = document.getElementById('pagesGrid');
+    const selectedCityText = editionSelect.options[editionSelect.selectedIndex].text;
+
     loader.classList.add('hidden');
     grid.classList.remove('hidden');
     
@@ -138,12 +128,12 @@ function showNoDataState(dateStr) {
             <div class="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
                 <i class="fa-solid fa-calendar-xmark"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">E-Paper Uplabdh Nahi Hai</h3>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">${selectedCityText} का ई-पेपर उपलब्ध नहीं है</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
-                Tareekh (${dateStr}) ka paper archive me nahi mila. Kripya doosri date select karein.
+                ${message || `तारीख (${dateStr}) का पेपर अभी ऑनलाइन अपलोड नहीं हुआ है।`}
             </p>
             <button onclick="changeDateByDays(-1)" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl transition shadow">
-                <i class="fa-solid fa-chevron-left mr-1"></i> Pichle Din Ka Dekhein
+                <i class="fa-solid fa-chevron-left mr-1"></i> पिछले दिन का देखें
             </button>
         </div>
     `;
@@ -335,9 +325,7 @@ viewportStage.addEventListener('touchend', () => {
     touchStartDist = 0;
 });
 
-// ==========================================================
-// 6. FILMSTRIP & KEYBOARD SHORTCUTS
-// ==========================================================
+// Filmstrip
 function renderFilmstrip(pages) {
     const container = document.getElementById('filmstripContainer');
     container.innerHTML = '';
@@ -376,7 +364,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 // ==========================================================
-// 7. CUSTOM DOWNLOAD HUB MODAL (Replaces Browser Alert)
+// 6. CUSTOM DOWNLOAD HUB MODAL
 // ==========================================================
 const downloadHubModal = document.getElementById('downloadHubModal');
 const downloadModalCard = document.getElementById('downloadModalCard');
@@ -421,7 +409,6 @@ function closeDownloadHub() {
     }, 200);
 }
 
-// Background click closes modal
 downloadHubModal.addEventListener('click', (e) => {
     if (e.target === downloadHubModal) {
         closeDownloadHub();
@@ -429,6 +416,6 @@ downloadHubModal.addEventListener('click', (e) => {
 });
 
 // ==========================================================
-// 8. INITIAL BOOT
+// 7. INITIAL DYNAMIC BOOT (Auto-loads Today's Edition)
 // ==========================================================
 handleDateOrEditionChange();
