@@ -71,120 +71,132 @@ async function handleRequest(request) {
     return new Response(null, { headers: corsHeaders })
   }
 
-  const url = new URL(request.url)
+  try {
+    const url = new URL(request.url)
 
-  // Calculate Today's Date in IST (UTC+5:30)
-  const nowIST = new Date(Date.now() + (5.5 * 60 * 60 * 1000))
-  const todayISTStr = nowIST.toISOString().split('T')[0]
+    // IST Today's Date Calculation (UTC + 5:30)
+    const nowIST = new Date(Date.now() + (5.5 * 60 * 60 * 1000))
+    const todayIST = nowIST.toISOString().split('T')[0]
 
-  let dateParam = url.searchParams.get('date') || todayISTStr
-  const eid = url.searchParams.get('eid') || '62'
-  const cityName = CITY_SLUG_MAP[eid] || 'narsingpur'
-  const isToday = (dateParam === todayISTStr)
+    let dateParam = url.searchParams.get('date') || todayIST
+    const eid = url.searchParams.get('eid') || '62'
+    const cityName = CITY_SLUG_MAP[eid] || 'narsingpur'
 
-  // Parse Date
-  const [year, monthNum, dayNum] = dateParam.split('-')
-  const day = String(parseInt(dayNum, 10)).padStart(2, '0')
-  const monthIdx = parseInt(monthNum, 10) - 1
-  const monthLower = MONTHS_LOWER[monthIdx] || 'aug'
-  const monthCap = monthLower.charAt(0).toUpperCase() + monthLower.slice(1)
+    // Date Breakdown
+    const [year, monthNum, dayNum] = dateParam.split('-')
+    const day = String(parseInt(dayNum, 10)).padStart(2, '0')
+    const monthIdx = parseInt(monthNum, 10) - 1
+    const monthLower = MONTHS_LOWER[monthIdx] || 'aug'
+    const monthCap = monthLower.charAt(0).toUpperCase() + monthLower.slice(1)
 
-  // Candidate URLs (Today ka master endpoint sabse pehle check hoga)
-  const candidateUrls = []
-  if (isToday) {
-    candidateUrls.push(`https://epaper.naidunia.com/edition-today-${cityName}-${eid}.html`)
-  }
-  candidateUrls.push(
-    `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`,
-    `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
-    `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`,
-    `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
-    `https://epaper.naidunia.com/edition-today-${cityName}-${eid}.html`
-  )
+    // All possible URLs that Naidunia generates for Today & Archives
+    const candidateUrls = [
+      `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
+      `https://epaper.naidunia.com/${day}-${monthLower}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`,
+      `https://epaper.naidunia.com/edition-today-${cityName}-${eid}.html`,
+      `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-2.html`,
+      `https://epaper.naidunia.com/${day}-${monthCap}-${year}-${eid}-${cityName}-edition-${cityName}-page-1.html`
+    ]
 
-  let pageData = null
-  let detectedCity = cityName
-  let formattedDateStr = `${day} ${monthCap} ${year}`
+    let pageData = null
+    let detectedCity = cityName
+    let formattedDateStr = `${day} ${monthCap} ${year}`
 
-  const browserHeaders = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
-    'Referer': 'https://epaper.naidunia.com/'
-  }
+    const browserHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+      'Referer': 'https://epaper.naidunia.com/'
+    }
 
-  for (const targetUrl of candidateUrls) {
-    try {
-      const response = await fetch(targetUrl, {
-        headers: browserHeaders,
-        redirect: 'follow',
-        cf: { cacheTtl: 1800, cacheEverything: true }
-      })
+    // Try candidate URLs
+    for (const targetUrl of candidateUrls) {
+      try {
+        const response = await fetch(targetUrl, {
+          headers: browserHeaders,
+          redirect: 'follow',
+          cf: { cacheTtl: 900, cacheEverything: true }
+        })
 
-      if (response.ok) {
-        const html = await response.text()
-        const marker = 'id="__NEXT_DATA__"'
-        const markerIdx = html.indexOf(marker)
+        if (response.ok) {
+          const html = await response.text()
+          const marker = '__NEXT_DATA__'
+          const markerIdx = html.indexOf(marker)
 
-        if (markerIdx !== -1) {
-          const openTagEnd = html.indexOf('>', markerIdx)
-          const closeTagStart = html.indexOf('</script>', openTagEnd)
+          if (markerIdx !== -1) {
+            const scriptStart = html.lastIndexOf('<script', markerIdx)
+            const contentStart = html.indexOf('>', scriptStart) + 1
+            const contentEnd = html.indexOf('</script>', contentStart)
 
-          if (openTagEnd !== -1 && closeTagStart !== -1) {
-            const jsonText = html.substring(openTagEnd + 1, closeTagStart).trim()
-            const parsed = JSON.parse(jsonText)
-            const rawPages = parsed?.props?.pageProps?.data || parsed?.pageProps?.data || []
+            if (contentStart > 0 && contentEnd > contentStart) {
+              const rawJson = html.substring(contentStart, contentEnd).trim()
+              const parsed = JSON.parse(rawJson)
+              const rawPages = parsed?.props?.pageProps?.data || parsed?.pageProps?.data || []
 
-            if (rawPages.length > 0) {
-              pageData = rawPages
-              detectedCity = rawPages[0].formattedCity || cityName
-              formattedDateStr = rawPages[0].formattedDate || formattedDateStr
-              break
+              if (rawPages.length > 0) {
+                pageData = rawPages
+                detectedCity = rawPages[0].formattedCity || cityName
+                formattedDateStr = rawPages[0].formattedDate || formattedDateStr
+                break
+              }
             }
           }
         }
+      } catch (err) {
+        // Continue fallback loop
       }
-    } catch (e) {}
-  }
+    }
 
-  if (!pageData || pageData.length === 0) {
+    if (!pageData || pageData.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: `${formattedDateStr} (${cityName}) ka e-paper uplabdh nahi hai.`,
+        pages: []
+      }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // Sanitize response
+    const sanitizedPages = pageData.map(page => ({
+      pageno: page.pageno,
+      page_image: page.page_image,
+      page_largeimage: page.page_largeimage,
+      page_pdf: page.page_pdf,
+      formattedCity: page.formattedCity || detectedCity,
+      formattedDate: page.formattedDate || formattedDateStr
+    }))
+
+    const finalResponse = {
+      success: true,
+      meta: {
+        eid: eid,
+        city: detectedCity,
+        date: dateParam,
+        formattedDate: formattedDateStr,
+        total_pages: sanitizedPages.length
+      },
+      pages: sanitizedPages
+    }
+
+    return new Response(JSON.stringify(finalResponse), {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=900'
+      }
+    })
+
+  } catch (globalError) {
     return new Response(JSON.stringify({
       success: false,
-      message: `${formattedDateStr} (${cityName}) ka e-paper abhi uplabdh nahi hai.`,
-      pages: []
+      error: globalError.message,
+      message: 'Worker execution error'
     }), {
-      status: 404,
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
-
-  const sanitizedPages = pageData.map(page => ({
-    pageno: page.pageno,
-    page_image: page.page_image,
-    page_largeimage: page.page_largeimage,
-    page_pdf: page.page_pdf,
-    formattedCity: page.formattedCity || detectedCity,
-    formattedDate: page.formattedDate || formattedDateStr
-  }))
-
-  const finalResponse = {
-    success: true,
-    meta: {
-      eid: eid,
-      city: detectedCity,
-      date: dateParam,
-      formattedDate: formattedDateStr,
-      total_pages: sanitizedPages.length
-    },
-    pages: sanitizedPages
-  }
-
-  return new Response(JSON.stringify(finalResponse), {
-    status: 200,
-    headers: {
-      ...corsHeaders,
-      'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=1800'
-    }
-  })
 }
